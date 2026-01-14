@@ -1,4 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from "next";
 
 // Simple in-memory cache
 const cache: {
@@ -27,13 +27,13 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   // Check cache
   const now = Date.now();
-  if (cache.data && (now - cache.timestamp) < CACHE_DURATION) {
+  if (cache.data && now - cache.timestamp < CACHE_DURATION) {
     return res.status(200).json(cache.data);
   }
 
@@ -41,7 +41,7 @@ export default async function handler(
     // Calculate date 7 days ago (more flexible than 24 hours)
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
-    const since = weekAgo.toISOString().split('T')[0];
+    const since = weekAgo.toISOString().split("T")[0];
 
     // Try multiple search queries to find AI/ML repositories
     const searchQueries = [
@@ -62,29 +62,35 @@ export default async function handler(
     for (const query of searchQueries) {
       try {
         const response = await fetch(
-          `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=stars&order=desc&per_page=20`,
+          `https://api.github.com/search/repositories?q=${encodeURIComponent(
+            query
+          )}&sort=stars&order=desc&per_page=20`,
           {
             headers: {
-              'Accept': 'application/vnd.github.v3+json',
+              Accept: "application/vnd.github.v3+json",
             },
           }
         );
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error(`GitHub API error for query "${query}":`, response.status, errorText);
+          console.error(
+            `GitHub API error for query "${query}":`,
+            response.status,
+            errorText
+          );
           continue; // Try next query
         }
 
         const data = await response.json();
-        
+
         if (data.items && data.items.length > 0) {
           // Format the response
           formattedRepos = data.items.map((repo: GitHubRepo) => ({
             id: repo.id,
             name: repo.name,
             fullName: repo.full_name,
-            description: repo.description || 'No description available',
+            description: repo.description || "No description available",
             url: repo.html_url,
             stars: repo.stargazers_count,
             language: repo.language,
@@ -93,8 +99,9 @@ export default async function handler(
           }));
 
           // Remove duplicates by ID
-          const uniqueRepos = formattedRepos.filter((repo, index, self) =>
-            index === self.findIndex((r) => r.id === repo.id)
+          const uniqueRepos = formattedRepos.filter(
+            (repo, index, self) =>
+              index === self.findIndex((r) => r.id === repo.id)
           );
 
           // Update cache
@@ -112,15 +119,17 @@ export default async function handler(
 
     // If all queries failed, return error
     if (formattedRepos.length === 0) {
-      throw lastError || new Error('No repositories found with any search query');
+      throw (
+        lastError || new Error("No repositories found with any search query")
+      );
     }
 
     return res.status(200).json(formattedRepos);
   } catch (error: any) {
-    console.error('Error fetching GitHub data:', error);
-    return res.status(500).json({ 
-      error: 'Failed to fetch GitHub data',
-      message: error.message 
+    console.error("Error fetching GitHub data:", error);
+    return res.status(500).json({
+      error: "Failed to fetch GitHub data",
+      message: error.message,
     });
   }
 }
