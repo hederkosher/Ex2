@@ -134,17 +134,6 @@ npm start
 }
 ```
 
-## 🚢 פריסה ל-Vercel
-
-1. ודא שהפרויקט שלך ב-GitHub
-2. היכנס ל-[vercel.com](https://vercel.com)
-3. לחץ על "New Project"
-4. בחר את ה-repository שלך
-5. Vercel יזהה אוטומטית שזה Next.js
-6. לחץ "Deploy"
-
-האתר יהיה זמין תוך דקות!
-
 ## 📁 מבנה הפרויקט
 
 ```
