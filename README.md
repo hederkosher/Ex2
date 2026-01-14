@@ -15,11 +15,13 @@
 ### Backend (API Routes)
 
 1. **`/api/github`** - איסוף נתונים מ-GitHub API
+
    - מושך פרויקטים עם הכי הרבה כוכבים ב-24 השעות האחרונות
    - מסנן לפי תגיות "AI" או "Machine Learning"
    - מטמון של 5 דקות להפחתת בקשות API
 
 2. **`/api/summarize`** - סיכום טקסט עם AI
+
    - תומך ב-3 ספקים: Groq (חינמי), OpenAI, Anthropic Claude
    - מחזיר סיכום של עד 3 שורות
    - משתמש במפתח API מהלקוח
@@ -33,6 +35,7 @@
 ## 🎨 עיצוב
 
 עיצוב מינימליסטי בהשראת Apple:
+
 - רקע לבן/אפור בהיר (#F5F5F7)
 - טקסט שחור/אפור כהה (#1d1d1f)
 - פינות מעוגלות (12px)
@@ -43,22 +46,25 @@
 
 ### דרישות מוקדמות
 
-- Node.js 18+ 
+- Node.js 18+
 - npm או yarn
 
 ### שלבי התקנה
 
 1. התקנת תלויות:
+
 ```bash
 npm install
 ```
 
 2. הרצת שרת פיתוח:
+
 ```bash
 npm run dev
 ```
 
 3. פתיחת הדפדפן בכתובת:
+
 ```
 http://localhost:3000
 ```
@@ -89,6 +95,7 @@ npm start
 מחזיר רשימת פרויקטים פופולריים מ-GitHub.
 
 **Response:**
+
 ```json
 [
   {
@@ -110,6 +117,7 @@ npm start
 מסכם טקסט בעזרת AI.
 
 **Request Body:**
+
 ```json
 {
   "text": "Text to summarize",
@@ -119,6 +127,7 @@ npm start
 ```
 
 **Response:**
+
 ```json
 {
   "summary": "Summarized text in up to 3 sentences..."
@@ -175,8 +184,9 @@ Ex2/
 ## 🌐 כתובת האתר
 
 לאחר פריסה ל-Vercel, האתר יהיה זמין בכתובת:
+
 ```
-https://your-project-name.vercel.app
+https://ex2-liard.vercel.app
 ```
 
 ## 📄 רישיון
