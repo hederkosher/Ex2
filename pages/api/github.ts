@@ -38,44 +38,82 @@ export default async function handler(
   }
 
   try {
-    // Calculate date 24 hours ago
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const since = yesterday.toISOString().split('T')[0];
+    // Calculate date 7 days ago (more flexible than 24 hours)
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const since = weekAgo.toISOString().split('T')[0];
 
-    // Fetch trending repositories with AI/ML topics
-    // Search for repos created or updated in last 24 hours with AI/ML topics, sorted by stars
-    const response = await fetch(
-      `https://api.github.com/search/repositories?q=(created:>${since}+OR+pushed:>${since})+topic:ai+topic:machine-learning&sort=stars&order=desc&per_page=20`,
-      {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-        },
+    // Try multiple search queries to find AI/ML repositories
+    const searchQueries = [
+      // First: repos updated recently with AI/ML topics
+      `pushed:>${since}+topic:ai+topic:machine-learning`,
+      // Second: repos with AI/ML topics, sorted by stars (most popular)
+      `topic:ai+topic:machine-learning`,
+      // Third: repos with AI in name or description
+      `ai+language:python+language:javascript`,
+      // Fourth: general ML repositories
+      `machine+learning+stars:>100`,
+    ];
+
+    let formattedRepos: any[] = [];
+    let lastError: Error | null = null;
+
+    // Try each query until we get results
+    for (const query of searchQueries) {
+      try {
+        const response = await fetch(
+          `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=stars&order=desc&per_page=20`,
+          {
+            headers: {
+              'Accept': 'application/vnd.github.v3+json',
+            },
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`GitHub API error for query "${query}":`, response.status, errorText);
+          continue; // Try next query
+        }
+
+        const data = await response.json();
+        
+        if (data.items && data.items.length > 0) {
+          // Format the response
+          formattedRepos = data.items.map((repo: GitHubRepo) => ({
+            id: repo.id,
+            name: repo.name,
+            fullName: repo.full_name,
+            description: repo.description || 'No description available',
+            url: repo.html_url,
+            stars: repo.stargazers_count,
+            language: repo.language,
+            createdAt: repo.created_at,
+            updatedAt: repo.updated_at,
+          }));
+
+          // Remove duplicates by ID
+          const uniqueRepos = formattedRepos.filter((repo, index, self) =>
+            index === self.findIndex((r) => r.id === repo.id)
+          );
+
+          // Update cache
+          cache.data = uniqueRepos;
+          cache.timestamp = now;
+
+          return res.status(200).json(uniqueRepos);
+        }
+      } catch (err: any) {
+        lastError = err;
+        console.error(`Error with query "${query}":`, err);
+        continue; // Try next query
       }
-    );
-
-    if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.status}`);
     }
 
-    const data = await response.json();
-    
-    // Format the response
-    const formattedRepos = data.items.map((repo: GitHubRepo) => ({
-      id: repo.id,
-      name: repo.name,
-      fullName: repo.full_name,
-      description: repo.description || 'No description available',
-      url: repo.html_url,
-      stars: repo.stargazers_count,
-      language: repo.language,
-      createdAt: repo.created_at,
-      updatedAt: repo.updated_at,
-    }));
-
-    // Update cache
-    cache.data = formattedRepos;
-    cache.timestamp = now;
+    // If all queries failed, return error
+    if (formattedRepos.length === 0) {
+      throw lastError || new Error('No repositories found with any search query');
+    }
 
     return res.status(200).json(formattedRepos);
   } catch (error: any) {

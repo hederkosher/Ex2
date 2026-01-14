@@ -51,13 +51,25 @@ export default function Home() {
       const response = await fetch('/api/github');
       
       if (!response.ok) {
-        throw new Error('Failed to fetch repositories');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || 'Failed to fetch repositories');
       }
       
       const data = await response.json();
-      setRepos(data);
+      
+      // Check if we got an array and it's not empty
+      if (Array.isArray(data) && data.length > 0) {
+        setRepos(data);
+      } else if (Array.isArray(data) && data.length === 0) {
+        setError('No repositories found. The search may be too restrictive.');
+        setRepos([]);
+      } else {
+        throw new Error('Invalid response format from server');
+      }
     } catch (err: any) {
-      setError(err.message || 'Failed to load repositories');
+      console.error('Error fetching repos:', err);
+      setError(err.message || 'Failed to load repositories. Please try again later.');
+      setRepos([]);
     } finally {
       setLoading(false);
     }
