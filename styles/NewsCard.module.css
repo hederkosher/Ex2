@@ -5,6 +5,9 @@
   margin-bottom: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.2s ease;
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .card:hover {
@@ -25,6 +28,9 @@
   color: #1d1d1f;
   margin-bottom: 0.5rem;
   line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .link {
@@ -43,6 +49,9 @@
   font-size: 0.9375rem;
   line-height: 1.6;
   margin-bottom: 1rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .meta {
@@ -88,6 +97,9 @@
   font-size: 0.9375rem;
   line-height: 1.6;
   color: #1d1d1f;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .error {
@@ -97,4 +109,7 @@
   border-radius: 8px;
   margin-top: 1rem;
   font-size: 0.875rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
